@@ -1,1 +1,5 @@
-For now, this is just a single python file with the code to unittest a function.
+# FunAlone
+
+A small python library that makes it easy to test a function alone, that it, mocking all
+dependencies. True unittests, without having to manually look and add every called function to an
+increasing list of @mock.patch decorators.
