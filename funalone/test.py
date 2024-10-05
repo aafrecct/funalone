@@ -3,10 +3,22 @@ from unittest.mock import Mock, MagicMock
 
 from funalone import isolated_test_for
 
-do_something = Mock(name="do_something")
-do_something_else = Mock(name="do_something_else")
-do_something_with_args = Mock(name="do_something_with_args")
-ext_variable = Mock()
+do_something = Mock(
+    name="do_something",
+    __name__="do_something",
+)
+do_something_else = Mock(
+    name="do_something_else",
+    __name__="do_something_else",
+)
+do_something_with_args = Mock(
+    name="do_something_with_args",
+    __name__="do_something_with_args",
+)
+ext_variable = Mock(
+    name="ext_variable",
+    __name__="ext_variable",
+)
 
 
 def example_function_one(an_arg, another_arg):
@@ -83,6 +95,16 @@ class FunAloneTests(TestCase):
                 "custom_mocks": {},
                 "mock_builtins": True,
                 "expected_type": MagicMock,
+            },
+            {
+                "function": example_function_one,
+                "args": (1, 2),
+                "custom_mocks": [
+                    (do_something, lambda: 0),
+                    (do_something_else, lambda: 0),
+                    ("ext_variable", 0),
+                ],
+                "expected": -1,
             },
         ]
         for case in test_cases:
