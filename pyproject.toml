@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "funalone"
-version = "0.2.0"
+version = "0.3.0"
 description = "Unittest functions isolated."
 authors = ["Borja Martinena"]
 license = "MIT"

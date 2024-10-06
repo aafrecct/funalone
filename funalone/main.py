@@ -98,4 +98,6 @@ class IsolatedContext(dict):
         if (result := self.mocked_objects.get(item)) is not None:
             return result
 
-        return MagicMock(name=item)
+        result = MagicMock(name=item)
+        self.mocked_objects[item] = result
+        return result

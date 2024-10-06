@@ -181,3 +181,31 @@ class FunAloneTests(TestCase):
         do_something.assert_not_called()
         do_something_else.assert_not_called()
         do_something_with_args.assert_not_called()
+
+    def test_isolated_test_for_alert_on_default(self):
+        test_cases = [
+            {
+                "function": example_function_one,
+                "args": (0, 0),
+                "custom_mocks": {},
+                "expected_type": MagicMock,
+            },
+        ]
+        for case in test_cases:
+            with self.subTest(case):
+
+                @isolated_test_for(
+                    case["function"],
+                    custom_mocked_objects=case["custom_mocks"],
+                    mock_builtins=case.get("mock_builtins", False),
+                    alert_on_default_mock=True,
+                )
+                def tester_function(fn):
+                    result = fn(*case["args"])
+
+                    self.assertIsInstance(result, case["expected_type"])
+
+                tester_function()
+                do_something.assert_not_called()
+                do_something_else.assert_not_called()
+                do_something_with_args.assert_not_called()
