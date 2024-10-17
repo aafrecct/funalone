@@ -1,10 +1,11 @@
 [tool.poetry]
 name = "funalone"
-version = "0.3.0"
+version = "0.4.0"
 description = "Unittest functions isolated."
 authors = ["Borja Martinena"]
 license = "MIT"
 readme = "README.md"
+repository = "https://github.com/aafrecct/funalone"
 
 [tool.poetry.dependencies]
 python = "^3.9"

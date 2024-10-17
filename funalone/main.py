@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from sys import stderr
 from typing import Callable, Iterable
 import unittest
@@ -9,6 +8,7 @@ from contextlib import ContextDecorator
 import builtins
 
 BUILTIN_NAMES = dir(builtins)
+
 
 def _process_custom_mocks(
     custom_mocked_objects: dict | Iterable[tuple[object, Mock]] | None = None,
