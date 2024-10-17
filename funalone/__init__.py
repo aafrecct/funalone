@@ -1,1 +1,1 @@
-from .main import IsolatedContext, isolated_test_for
+from .main import IsolatedContext, IsolatedContextManager
