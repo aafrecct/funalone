@@ -39,6 +39,9 @@ jobs:
       - name: Install dependencies
         run: poetry install --sync --no-interaction
 
+      - name: Run unittests
+        run: poetry run coverage run -m unittest
+
       - name: Package project
         run: poetry build
 

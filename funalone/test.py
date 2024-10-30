@@ -156,7 +156,7 @@ class FunAloneTests(TestCase):
             with IsolatedContextManager(
                 case["function"],
                 custom_mocked_objects=case["custom_mocks"],
-                mock_builtins=case.get("mock_builtins", False),
+                mock_builtins=False,
                 log_dependency_access_count=True,
                 alert_on_default_mock=True,
                 name_allow_list=case.get("name_allow_list", False),

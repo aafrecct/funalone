@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 import builtins
 from contextlib import ContextDecorator
 from dataclasses import dataclass
 from enum import Enum
 from sys import stderr
 from types import FunctionType
-from typing import Iterable
+from typing import Any, Iterable
 from unittest.mock import MagicMock, Mock
 
 from funalone.namespaced_function import create_namespaced_function_clone
@@ -13,6 +15,21 @@ BUILTIN_NAMES = dir(builtins)
 
 
 class IsolatedContextManager(ContextDecorator):
+    """A context manager that creates a namespaced clone of a function with
+    access to a dummy `globals` object that creates mocks on the fly or serves
+    custom ones for the missing external dependencies, while keeping track of
+    statistics like access counts.
+
+    Attributes:
+        original_function: A reference to the original function.
+        isolated_function: The cloned function with overwriten globals.
+            Can also be accesed as an attrribute with the name of the original
+            function if it doesn't clash for readability.
+        context: A reference to the `globals` context of the isolated function.
+        mocked_objects: A shortcut reference to the `MockCollection` used by the
+            context. Same as `self.context.mocked_objects`.
+    """
+
     def __init__(
         self,
         tested_function: FunctionType,
@@ -22,6 +39,7 @@ class IsolatedContextManager(ContextDecorator):
         alert_on_default_mock: bool = False,
         custom_mocked_objects: dict | Iterable[tuple[object, Mock]] | None = None,
         name_allow_list: Iterable[object] | bool = False,
+        strip_function_defaults: bool = False,
         **kw_custom_mocked_objects,
     ):
         global_context = IsolatedContext(
@@ -35,6 +53,7 @@ class IsolatedContextManager(ContextDecorator):
             tested_function,
             global_context,
             keep_original_globals=_process_name_allow_list(name_allow_list),
+            strip_original_defaults=strip_function_defaults,
         )
 
         def exec_isolated_function(*args, **kwargs):
@@ -42,7 +61,9 @@ class IsolatedContextManager(ContextDecorator):
             return self._namespaced_function_clone(*args, **kwargs)
 
         self.isolated_function = exec_isolated_function
-        setattr(self, tested_function.__name__, exec_isolated_function)
+
+        if tested_function.__name__ not in self.__dict__:
+            setattr(self, tested_function.__name__, exec_isolated_function)
 
         self.context = global_context
         self.mocked_objects = self.context.mocked_objects
@@ -63,6 +84,19 @@ class IsolatedContextManager(ContextDecorator):
 
 
 class IsolatedContext(dict):
+    """A dict-like object that creates MagicMocks on not-found key lookups.
+
+    A collection of key value pairs that returns a new named MagicMock object when
+    accesing a key that doesn't exist. For use in a namespaced function for testing
+    purposes. It also keeps track of access counts for these objects, to help with
+    debugging and allows specification of custom Mock objects for certain keys.
+
+    Attributes:
+        mocked_objects: An instance of MockCollection that stores Mocks and their
+            metadata. It allows creation of mocks on attribute or item access for
+            ease of configuration.
+    """
+
     def __init__(
         self,
         mock_builtins: bool = False,
@@ -78,7 +112,7 @@ class IsolatedContext(dict):
 
     def __getitem__(self, item: str):
         if not self.mock_builtins and item in BUILTIN_NAMES:
-            raise KeyError(item)
+            return getattr(builtins, item)
 
         return self.mocked_objects._get_mock(item)
 
@@ -144,7 +178,7 @@ class MockCollection(dict):
         )
         super(__class__, self).__init__(mocks)
 
-    def _get_mock(self, name: str) -> builtins.Any:
+    def _get_mock(self, name: str) -> Any:
         active_access = 1 if self.state == ContextStates.ACTIVE else 0
         if result := super(__class__, self).get(name):
             result.metadata.total_access_count += 1
@@ -157,7 +191,7 @@ class MockCollection(dict):
         )
         return result
 
-    def _set_mock(self, name: str, value: builtins.Any) -> None:
+    def _set_mock(self, name: str, value: Any) -> None:
         super(__class__, self).__setitem__(
             name, MockItem(value, MockMetadata(True, 1, 0))
         )

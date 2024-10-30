@@ -6,6 +6,12 @@ increasing list of @mock.patch decorators.
 
 ## Changelog
 
+### 0.5.1
+- Defaults can now be striped from the cloned function.
+- Added some documentation. (Much missing still)
+- Fixed missing import.
+- Minor fixes.
+
 ### 0.5.0
 - Separated functionality into two different files.
 - Functions can now keep original globals and only override certain ones.
