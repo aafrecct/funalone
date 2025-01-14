@@ -2,22 +2,22 @@ from sys import stderr
 from unittest import TestCase
 from unittest.mock import Mock, MagicMock
 
-from funalone import IsolatedContextManager
+from funalone import IsolatedFunctionClone
 
 do_something = Mock(
-    name="do_something",
+    name="do_something (original)",
     __name__="do_something",
 )
 do_something_else = Mock(
-    name="do_something_else",
+    name="do_something_else (original)",
     __name__="do_something_else",
 )
 do_something_with_args = Mock(
-    name="do_something_with_args",
+    name="do_something_with_args (original)",
     __name__="do_something_with_args",
 )
 ext_variable = MagicMock(
-    name="ext_variable",
+    name="ext_variable (original)",
     __name__="ext_variable",
 )
 
@@ -121,12 +121,15 @@ class FunAloneTests(TestCase):
             },
         ]
         for case in test_cases:
-            with IsolatedContextManager(
-                case["function"],
-                mock_builtins=case.get("mock_builtins", False),
-                custom_mocked_objects=case["custom_mocks"],
-            ) as subtest, self.subTest(case):
-                result = subtest.isolated_function(*case["args"])
+            with (
+                IsolatedFunctionClone(
+                    case["function"],
+                    mock_builtins=case.get("mock_builtins", False),
+                    custom_mocked_objects=case["custom_mocks"],
+                ) as function,
+                self.subTest(case),
+            ):
+                result = function(*case["args"])
 
                 if "expected" in case:
                     self.assertEqual(case["expected"], result)
@@ -153,22 +156,25 @@ class FunAloneTests(TestCase):
             },
         ]
         for case in test_cases:
-            with IsolatedContextManager(
-                case["function"],
-                custom_mocked_objects=case["custom_mocks"],
-                mock_builtins=False,
-                log_dependency_access_count=True,
-                alert_on_default_mock=True,
-                name_allow_list=case.get("name_allow_list", False),
-            ) as subtest, self.subTest(case):
-                result = subtest.isolated_function(*case["args"])
+            with (
+                IsolatedFunctionClone(
+                    case["function"],
+                    custom_mocked_objects=case["custom_mocks"],
+                    mock_builtins=False,
+                    log_dependency_access_count=True,
+                    alert_on_default_mock=True,
+                    name_allow_list=case.get("name_allow_list", False),
+                ) as function,
+                self.subTest(case),
+            ):
+                result = function(*case["args"])
 
                 self.assertIsInstance(result, case["expected_type"])
 
                 do_something.assert_not_called()
                 do_something_else.assert_not_called()
                 do_something_with_args.assert_not_called()
-                self.assertIsNotNone(str(subtest.context))
+                self.assertIsNotNone(str(function.context))
 
     def test_isolated_context_manager_set_mocks_after_manager_entry(self):
         test_cases = [
@@ -179,22 +185,25 @@ class FunAloneTests(TestCase):
             },
         ]
         for case in test_cases:
-            with IsolatedContextManager(
-                case["function"],
-                mock_builtins=case.get("mock_builtins", False),
-            ) as subtest, self.subTest(case):
-                subtest.mocked_objects.do_something = Mock(side_effect=lambda: 0)
-                subtest.mocked_objects.do_something_else = Mock(side_effect=lambda: 0)
-                subtest.mocked_objects.ext_variable = case["ext_variable"]
+            with (
+                IsolatedFunctionClone(
+                    case["function"],
+                    mock_builtins=case.get("mock_builtins", False),
+                ) as function,
+                self.subTest(case),
+            ):
+                function.context.do_something = Mock(side_effect=lambda: 0)
+                function.context[do_something_else] = Mock(side_effect=lambda: 0)
+                function.context[ext_variable] = case["ext_variable"]
 
-                result = subtest.isolated_function(0, 0)
+                result = function(0, 0)
 
                 self.assertEqual(result, case["ext_variable"])
                 do_something.assert_not_called()
                 do_something_else.assert_not_called()
                 do_something_with_args.assert_not_called()
-                subtest.mocked_objects.do_something.assert_called()
-                subtest.mocked_objects.do_something_else.assert_called()
+                function.context.do_something.assert_called()
+                function.context[do_something_else].assert_called()
 
     def test_isolated_context_manager_keep_globals(self):
         test_cases = [
@@ -233,13 +242,16 @@ class FunAloneTests(TestCase):
         ]
 
         for case in test_cases:
-            with IsolatedContextManager(
-                case["function"],
-                custom_mocked_objects=case.get("custom_mocks"),
-                mock_builtins=case.get("mock_builtins", False),
-                name_allow_list=case["name_allow_list"],
-            ) as subtest, self.subTest(case):
-                result = subtest.isolated_function(0, 0)
+            with (
+                IsolatedFunctionClone(
+                    case["function"],
+                    custom_mocked_objects=case.get("custom_mocks"),
+                    mock_builtins=case.get("mock_builtins", False),
+                    name_allow_list=case["name_allow_list"],
+                ) as function,
+                self.subTest(case),
+            ):
+                result = function(0, 0)
 
                 self.assertIsInstance(result, Mock)
 
@@ -263,17 +275,20 @@ class FunAloneTests(TestCase):
             },
         ]
         for case in test_cases:
-            with IsolatedContextManager(
-                case["function"],
-                mock_builtins=case.get("mock_builtins", False),
-            ) as subtest, self.subTest(case):
-                subtest.mocked_objects.do_something = Mock(side_effect=lambda: 0)
-                subtest.mocked_objects.do_something_else = Mock(side_effect=lambda: 0)
-                subtest.mocked_objects.ext_variable = case["ext_variable"]
+            with (
+                IsolatedFunctionClone(
+                    case["function"],
+                    mock_builtins=case.get("mock_builtins", False),
+                ) as function,
+                self.subTest(case),
+            ):
+                function.context.do_something = Mock(side_effect=lambda: 0)
+                function.context.do_something_else = Mock(side_effect=lambda: 0)
+                function.context.ext_variable = case["ext_variable"]
 
-                result = subtest.isolated_function(0, 0)
-                subtest.context.mocked_objects.reset_access_counts()
+                result = function(0, 0)
+                function.context.reset_access_counts()
 
                 self.assertEqual(result, case["ext_variable"])
-                for object in subtest.context.mocked_objects:
+                for object in function.context:
                     print(object, file=stderr)
