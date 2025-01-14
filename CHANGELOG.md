@@ -69,6 +69,7 @@ and this project adheres to [Semantic Versioning].
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
 <!-- Versions -->
-[unreleased]: https://github.com/Author/Repository/compare/v0.0.2...HEAD
-[0.0.2]: https://github.com/Author/Repository/compare/v0.0.1...v0.0.2
-[0.0.1]: https://github.com/Author/Repository/releases/tag/v0.0.1
+[0.6.0]: https://github.com/aafrecct/funalone/releases/tag/0.6.0
+[0.5.1]: https://github.com/aafrecct/funalone/releases/tag/0.5.1
+[0.5.0]: https://github.com/aafrecct/funalone/releases/tag/0.5.0
+[0.4.0]: https://github.com/aafrecct/funalone/releases/tag/0.4.0
