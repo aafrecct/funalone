@@ -1,27 +1,46 @@
 # FunAlone
 
-A small python library that makes it easy to test a function alone, that is, mocking all
+A small python library that makes it easy to test a **fun**ction **alone**, that is, mocking all
 dependencies. True unittests, without having to manually look and add every called function to an
 increasing list of @mock.patch decorators.
 
-## Changelog
+## Example
 
-### 0.5.1
-- Defaults can now be striped from the cloned function.
-- Added some documentation. (Much missing still)
-- Fixed missing import.
-- Minor fixes.
+Say you have a function named `do_a_lot_of_stuff` and you want to test it with `unittest`, only testing the functions code, not the function that it calls within.
 
-### 0.5.0
-- Separated functionality into two different files.
-- Functions can now keep original globals and only override certain ones.
-- Functions can now keep default arguments.
-- Kept globals can be specified with a list of strings.
-- Reworked how mocks are created and stored.
-- Mocks can now be created and modified like attributes in the collection.
-- Minor fixes
+```python
+def do_a_lot_of_stuff(arg: int):
+    if arg > 5:
+        result = do_this(arg)
+    elif arg < 0:
+        result = do_that(arg)
+    else:
+        result = do_nothing(arg)
+    
+    return result
+```
 
-### 0.4.0
-- Changed from a function decorator to a context manager for versatility.
-- Made dependency logging optional
+In this case you might want to know which external function has been called, depending on the input, without having the code actually call that function (which could have side effects and should have it's own unit tests).
+
+```python
+class Test(unittest.TestCase):
+    def test_do_a_lot_of_stuff_with_5(self):
+        with IsolatedFunctionClone(
+            do_a_lot_of_stuff
+            ) as do_a_lot_of_stuff:
+
+            # This calls a function clone with an isolated context.
+            # All external names are mocked.
+            do_a_lot_of_stuff(5)
+
+            # You can access this context later to assert calls,
+            # And you can use the original functions to do this,
+            # so it's all refactor-friendly.
+            do_a_lot_of_stuff.context[do_this].assert_not_called()
+            do_a_lot_of_stuff.context[do_that].assert_not_called()
+            do_a_lot_of_stuff.context[do_nothing].assert_called_once()
+
+```
+
+There are more parameters and ways to use the library, this is only a basic example.
 
