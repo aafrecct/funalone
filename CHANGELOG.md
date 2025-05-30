@@ -5,14 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
-## [0.7.0-alpha]
+## [0.7.1] - 2025-05-30
+
+### Changed
+- Mocks will not be speced if spec-ing them fails. This avoids problems with some request objects.
+
+## [0.7.0] -  2025-05-30
 
 ### Added
 - Mocks automatically created by the context are now, by default, autospec-ed with the functions initial globals.
 - Contexts can now be reset, returning all metrics to 0.
 - Isolated funtion clones can now be created with a decorator. Creating them once through this method and resetting them for every sub-test should be faster than repeatedly using the context manager.
 - A new `allow_exceptions` paramenter prevents exception objects from being mocked and therefore not throwable.
-
 
 ### Deprecated
 - Python 3.9 support has been dropped.

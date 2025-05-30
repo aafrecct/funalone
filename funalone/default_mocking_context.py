@@ -201,8 +201,9 @@ def auto_create_mock_from_spec(name: str, spec: Any | None = None) -> Mock:
     """
     if spec is None or isinstance(spec, Mock):
         return MagicMock(name=name)
-
     if isinstance(spec, type):
         return MagicMock(name=name, spec=spec, return_value=MagicMock(spec=spec))
-
-    return create_autospec(spec=spec)
+    try:
+        return create_autospec(spec=spec)
+    except Exception:
+        return MagicMock(name=name)
