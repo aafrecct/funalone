@@ -11,7 +11,7 @@ repository = "https://github.com/aafrecct/funalone"
 python = "^3.10"
 
 [tool.poetry.group.test.dependencies]
-coverage = "^7.6.4"
+coverage = {extras = ["toml"], version = "^7.8.2"}
 
 [tool.poetry.group.dev.dependencies]
 ipdb = "^0.13.13"
