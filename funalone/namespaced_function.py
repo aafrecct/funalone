@@ -1,18 +1,20 @@
 from __future__ import annotations
 
-from types import FunctionType
-from typing import Any, Iterable
+from typing import Any
+from collections.abc import Callable
+
+from funalone.types import F
 
 
 def create_namespaced_function_clone(
-    function: FunctionType,
-    globals: dict[str, Any],
+    function: F,
+    globals: dict[str, Any] | None = None,
     name_override: str | None = None,
     closure: tuple | None = None,
     *,
-    keep_original_globals: bool | Iterable[str] = False,
+    keep_original_globals: bool | Callable[[str, Any], bool] = False,
     strip_original_defaults: bool = False,
-) -> FunctionType:
+) -> F:
     """Return a clone of the fuction given with overwritten globals.
 
     Creates a clone of a function for testing purposes while overwriting it's
@@ -41,16 +43,11 @@ def create_namespaced_function_clone(
     clone_name = name_override if name_override else f"__cloned_{function.__name__}"
     clone_closure = closure if closure else function.__closure__
 
-    if isinstance(keep_original_globals, bool):
-        if keep_original_globals:
-            keep_original_globals = function.__globals__.keys()
-        else:
-            keep_original_globals = []
+    if globals is None:
+        globals = {}
+    globals = _process_globals(function, globals, keep_original_globals)
 
-    for g_varname in keep_original_globals:
-        globals.setdefault(g_varname, function.__globals__[g_varname])
-
-    clone_function = FunctionType(
+    clone_function = type(function)(
         function.__code__,
         globals,
         name=clone_name,
@@ -62,3 +59,35 @@ def create_namespaced_function_clone(
         clone_function.__kwdefaults__ = function.__kwdefaults__
 
     return clone_function
+
+
+def _process_globals(
+    function: F,
+    globals: dict[str, Any],
+    keep_original_globals: bool | Callable[[str, Any], bool],
+) -> dict[str, Any]:
+    """Process the globals of a function to remove unwanted globals.
+
+    Args:
+        function: The function to process.
+        keep_original_globals: The globals to keep.
+
+    Returns:
+        A dict with the processed globals."""
+
+    if isinstance(keep_original_globals, bool):
+        if keep_original_globals:
+            for key, value in function.__globals__.items():
+                globals.setdefault(key, value)
+        return globals
+
+    function_used_globals = {
+        name: function.__globals__[name]
+        for name in function.__code__.co_names
+        if name in function.__globals__
+    }
+    for key, value in function_used_globals.items():
+        if keep_original_globals(key, value):
+            globals.setdefault(key, value)
+
+    return globals

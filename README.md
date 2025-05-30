@@ -27,20 +27,35 @@ class Test(unittest.TestCase):
     def test_do_a_lot_of_stuff_with_5(self):
         with IsolatedFunctionClone(
             do_a_lot_of_stuff
-            ) as do_a_lot_of_stuff:
+            ) as do_a_lot_of_stuff_clone:
 
             # This calls a function clone with an isolated context.
             # All external names are mocked.
-            do_a_lot_of_stuff(5)
+            do_a_lot_of_stuff_clone(5)
 
             # You can access this context later to assert calls,
             # And you can use the original functions to do this,
             # so it's all refactor-friendly.
-            do_a_lot_of_stuff.context[do_this].assert_not_called()
-            do_a_lot_of_stuff.context[do_that].assert_not_called()
-            do_a_lot_of_stuff.context[do_nothing].assert_called_once()
+            do_a_lot_of_stuff_clone.context[do_this].assert_not_called()
+            do_a_lot_of_stuff_clone.context[do_that].assert_not_called()
+            do_a_lot_of_stuff_clone.context[do_nothing].assert_called_once()
 
 ```
 
 There are more parameters and ways to use the library, this is only a basic example.
 
+## Installation
+
+You can install the latest version with pip:
+```bash
+pip install funalone
+```
+
+## Tests
+
+There is a small collection of unittests in the `test` folder.
+You can run them using unittest.
+
+## Credits
+
+This project is developed by Borja Martinena (borjamartinena[at]gmail.com).

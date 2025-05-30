@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog],
 and this project adheres to [Semantic Versioning].
 
+## [0.7.0-alpha]
+
+### Added
+- Mocks automatically created by the context are now, by default, autospec-ed with the functions initial globals.
+- Contexts can now be reset, returning all metrics to 0.
+- Isolated funtion clones can now be created with a decorator. Creating them once through this method and resetting them for every sub-test should be faster than repeatedly using the context manager.
+- A new `allow_exceptions` paramenter prevents exception objects from being mocked and therefore not throwable.
+
+
+### Deprecated
+- Python 3.9 support has been dropped.
+
+### Changed
+- `create_namespaced_function_clone` now recieves a Callable instead of an Iterable for `keep_original_globals`. This callable will be called with all the functions original globals and the function will keep those that evaluate to True.
+- Several changes to type hints. Hopefully now mypy won't complain as much when using the library.
+- Changes to the whole test suite. Right now the new test suite barely reaches 100% coverage, but everything has been refatored so that new tests can be easily added almost declaratively. More tests might be added in a minor release in the future.
+- The `mock_builtins` parameter has been reversed and is now `allow_builtins`.
+- Minor improvements.
+
+### Removed
+- `DefaultMockingContext` is now not exported from the main module because it's usecases are limited and it's mostly built to work as part of IsolatedFunctionClone. (Making a fully working dict-like object that may be useful may be done for future updates.)
 
 ## [0.6.0] - 2025-01-14
 - Breaking
@@ -57,7 +78,7 @@ and this project adheres to [Semantic Versioning].
 - Made dependency logging optional
 
 
-## [0.0.1] - 2024-09-27
+## 0.0.1 - 2024-09-27
 
 - initial release
 
@@ -69,6 +90,7 @@ and this project adheres to [Semantic Versioning].
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
 <!-- Versions -->
+[0.7.0]: https://github.com/aafrecct/funalone/releases/tag/0.7.0
 [0.6.0]: https://github.com/aafrecct/funalone/releases/tag/0.6.0
 [0.5.1]: https://github.com/aafrecct/funalone/releases/tag/0.5.1
 [0.5.0]: https://github.com/aafrecct/funalone/releases/tag/0.5.0
