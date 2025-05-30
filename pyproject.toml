@@ -10,10 +10,11 @@ repository = "https://github.com/aafrecct/funalone"
 [tool.poetry.dependencies]
 python = "^3.10"
 
+[tool.poetry.group.test.dependencies]
+coverage = "^7.6.4"
 
 [tool.poetry.group.dev.dependencies]
 ipdb = "^0.13.13"
-coverage = "^7.6.4"
 
 [build-system]
 requires = ["poetry-core"]
