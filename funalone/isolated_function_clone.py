@@ -1,6 +1,6 @@
 from collections.abc import Callable, Iterable
 from sys import stderr
-from typing import Any, Concatenate, Generic
+from typing import Any, Generic
 from unittest.mock import Mock
 from typing_extensions import deprecated
 
@@ -143,7 +143,7 @@ def with_isolated_function_clone(
     """
 
     def wrapper(
-        function: Callable[Concatenate[IsolatedFunctionClone[P, R], ...], Any],
+        function: Callable[..., Any],
     ) -> Callable[..., Any]:
         def wrapped_function(*args, **kwargs):
             with IsolatedFunctionClone(
