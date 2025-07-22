@@ -1,20 +1,20 @@
 from __future__ import annotations
 
-from typing import Any
 from collections.abc import Callable
+from typing import Any
 
-from funalone.types import F
+from funalone.types import P, R
 
 
 def create_namespaced_function_clone(
-    function: F,
+    function: Callable[P, R],
     globals: dict[str, Any] | None = None,
     name_override: str | None = None,
     closure: tuple | None = None,
     *,
     keep_original_globals: bool | Callable[[str, Any], bool] = False,
     strip_original_defaults: bool = False,
-) -> F:
+) -> Callable[P, R]:
     """Return a clone of the fuction given with overwritten globals.
 
     Creates a clone of a function for testing purposes while overwriting it's
@@ -47,7 +47,7 @@ def create_namespaced_function_clone(
         globals = {}
     globals = _process_globals(function, globals, keep_original_globals)
 
-    clone_function = type(function)(
+    clone_function = type(function)(  # type: ignore
         function.__code__,
         globals,
         name=clone_name,
@@ -62,7 +62,7 @@ def create_namespaced_function_clone(
 
 
 def _process_globals(
-    function: F,
+    function: Callable[P, R],
     globals: dict[str, Any],
     keep_original_globals: bool | Callable[[str, Any], bool],
 ) -> dict[str, Any]:

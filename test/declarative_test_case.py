@@ -1,5 +1,3 @@
-
-
 from typing import Generator, Literal
 from unittest.mock import MagicMock
 

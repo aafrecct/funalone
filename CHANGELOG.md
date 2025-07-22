@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning].
 
 ### Changed
 - Mocks will not be speced if spec-ing them fails. This avoids problems with some request objects.
+- Changed type hints so that IsolatedFunctionClone instances now show the original function's type signature when called.
+
+### Deprecated
+- `with_isolated_function_clone` decorator is now deprecated because it adds unnecessary complexity in keeping the tested function's
+type signature.
 
 ## [0.7.0] -  2025-05-30
 

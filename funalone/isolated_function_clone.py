@@ -1,4 +1,9 @@
-from typing import Any
+from collections.abc import Callable, Iterable
+from sys import stderr
+from typing import Any, Concatenate, Generic, Self
+from unittest.mock import Mock
+from typing_extensions import deprecated
+
 from funalone.default_mocking_context import (
     ContextStates,
     DefaultMockingContext,
@@ -8,19 +13,14 @@ from funalone.types import (
     MockOrigin,
     Name,
     NamedObject,
-    F,
+    P,
+    R,
     is_exception,
     normalize_name,
 )
 
 
-from collections.abc import Callable, Iterable
-from contextlib import ContextDecorator
-from unittest.mock import Mock
-from sys import stderr
-
-
-class IsolatedFunctionClone(ContextDecorator):
+class IsolatedFunctionClone(Generic[P, R]):
     """A context manager that creates a namespaced clone of a function with
     access to a dummy `globals` object that creates mocks on the fly or serves
     custom ones for the missing external dependencies, while keeping track of
@@ -35,7 +35,7 @@ class IsolatedFunctionClone(ContextDecorator):
 
     def __init__(
         self,
-        tested_function: F,
+        tested_function: Callable[P, R],
         *,
         custom_mocked_objects: dict | Iterable[tuple[NamedObject, Mock]] | None = None,
         name_allow_list: Iterable[NamedObject] | None = None,
@@ -72,13 +72,13 @@ class IsolatedFunctionClone(ContextDecorator):
         self.log_dependency_access_count = log_dependency_access_count
         self.alert_on_default_mock = alert_on_default_mock
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args: P.args, **kwargs: P.kwargs) -> R:
         self.activate()
         result = self._namespaced_function_clone(*args, **kwargs)
         self.deactivate()
         return result
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(self, *args):
@@ -120,8 +120,11 @@ class IsolatedFunctionClone(ContextDecorator):
         )
 
 
+@deprecated(
+    "Decorator is deprecated because of dificulty of mantainance and typing, use `IsolatedFunctionClone` as a context manager instead."
+)
 def with_isolated_function_clone(
-    tested_function: F,
+    tested_function: Callable[P, R],
     *,
     custom_mocked_objects: dict | Iterable[tuple[NamedObject, Mock]] | None = None,
     name_allow_list: Iterable[NamedObject] | None = None,
@@ -139,7 +142,9 @@ def with_isolated_function_clone(
     for a given function and passes it to the decorated function as a parameter.
     """
 
-    def wrapper(function: Callable):
+    def wrapper(
+        function: Callable[Concatenate[IsolatedFunctionClone[P, R], ...], Any],
+    ) -> Callable[..., Any]:
         def wrapped_function(*args, **kwargs):
             with IsolatedFunctionClone(
                 tested_function,

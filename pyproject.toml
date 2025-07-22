@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "funalone"
-version = "0.7.0"
+version = "0.7.1"
 description = "Unittest functions isolated."
 authors = ["Borja Martinena"]
 license = "MIT"
@@ -15,6 +15,7 @@ coverage = {extras = ["toml"], version = "^7.8.2"}
 
 [tool.poetry.group.dev.dependencies]
 ipdb = "^0.13.13"
+mypy = "^1.17.0"
 
 [build-system]
 requires = ["poetry-core"]

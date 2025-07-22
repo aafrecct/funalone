@@ -1,7 +1,9 @@
 from enum import Enum
-from types import FunctionType
-from typing import Protocol, TypeVar, TypeAlias, Any
+from typing import ParamSpec, Protocol, TypeVar, TypeAlias, Any
 from dataclasses import dataclass
+
+P = ParamSpec("P")
+R = TypeVar("R")
 
 
 class NamedObject(Protocol):
@@ -9,8 +11,6 @@ class NamedObject(Protocol):
 
 
 Name: TypeAlias = str | NamedObject
-
-F = TypeVar("F", bound=FunctionType)
 
 
 class MockOrigin(Enum):

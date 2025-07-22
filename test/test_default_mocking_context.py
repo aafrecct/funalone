@@ -6,6 +6,7 @@ from funalone.types import MockItem as MI, MockMetadata as MM, MockOrigin as MO
 from test.declarative_test_case import DeclarativeTestCase
 from test.utils import (
     basic_two_int_function,
+    return_external_variable,
     check_one,
     ext_variable,
 )
@@ -189,6 +190,32 @@ class DefaultMockingContestTests(DeclarativeTestCase, TestCase):
             ],
             "checks": {
                 "raises": TypeError,
+            },
+        },
+        {
+            "message": "Full test with serveral actions",
+            "config": {
+                "custom_mocks": {
+                    "ext_variable": ext_variable,
+                },
+                "allow_builtins": True,
+            },
+            "actions": [
+                lambda context: context.set_state(ContextStates.SETUP_ORIGINALS),
+                lambda context: context.setdefault(
+                    "basic_two_int_function", basic_two_int_function
+                ),
+                lambda context: context.set_state(ContextStates.SETUP),
+                lambda context: dict_set(
+                    context, return_external_variable, Mock(return_value=ext_variable)
+                ),
+            ],
+            "checks": {
+                "result": {
+                    "ext_variable": MI(ANY, MM(MO.CUSTOM, 0, 0)),
+                    "basic_two_int_function": MI(ANY, MM(MO.FUNCTION_ORIGINAL, 1, 0)),
+                    "return_external_variable": MI(ANY, MM(MO.CUSTOM, 1, 0)),
+                },
             },
         },
     ]
