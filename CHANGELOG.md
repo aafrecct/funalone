@@ -99,6 +99,7 @@ type signature.
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
 <!-- Versions -->
+[0.7.1]: https://github.com/aafrecct/funalone/releases/tag/0.7.1
 [0.7.0]: https://github.com/aafrecct/funalone/releases/tag/0.7.0
 [0.6.0]: https://github.com/aafrecct/funalone/releases/tag/0.6.0
 [0.5.1]: https://github.com/aafrecct/funalone/releases/tag/0.5.1
