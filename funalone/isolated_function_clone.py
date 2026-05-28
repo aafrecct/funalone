@@ -127,7 +127,7 @@ def with_isolated_function_clone(
     tested_function: Callable[P, R],
     *,
     custom_mocked_objects: dict | Iterable[tuple[NamedObject, Mock]] | None = None,
-    name_allow_list: Iterable[NamedObject] | None = None,
+    name_allow_list: Iterable[Name] | None = None,
     name_allow_condition: Callable[[object], bool] | None = None,
     allow_all_names: bool = False,
     allow_builtins: bool = True,
