@@ -1,6 +1,6 @@
 from collections.abc import Callable, Iterable
 from sys import stderr
-from typing import Any, Generic
+from typing import Any, Generic, Self
 from unittest.mock import Mock
 from typing_extensions import deprecated
 
@@ -78,7 +78,7 @@ class IsolatedFunctionClone(Generic[P, R]):
         self.deactivate()
         return result
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(self, *args):
