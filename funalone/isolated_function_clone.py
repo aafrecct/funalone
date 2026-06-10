@@ -1,8 +1,8 @@
 from collections.abc import Callable, Iterable
 from sys import stderr
-from typing import Any, Generic, Self
+from typing import Any, Generic
 from unittest.mock import Mock
-from typing_extensions import deprecated
+from typing_extensions import deprecated, Self
 
 from funalone.default_mocking_context import (
     ContextStates,
@@ -195,8 +195,6 @@ def _process_name_allows(
     if allow_exceptions:
         checks.append(lambda _n, o: is_exception(o))
 
-    return (
-        lambda name, object: any(check(name, object) for check in checks)
-        if checks
-        else False
+    return lambda name, object: (
+        any(check(name, object) for check in checks) if checks else False
     )
